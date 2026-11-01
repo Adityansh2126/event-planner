@@ -26,3 +26,6 @@ Without a key the app serves a template plan so it never breaks.
 - `test/`: unit and API tests (`npm test`), with the AI call stubbed so tests run offline
 
 Identical requests are cached for 10 minutes; static files are cached and responses are gzip-compressed.
+
+## Security notes
+Strict CSP, HSTS, Permissions-Policy and COOP/CORP headers; dates, sizes and control characters validated server-side; per-IP rate limit with a bounded client table; `TRUST_PROXY` controls how many proxy hops are trusted for client IPs; the API key never reaches the browser and upstream error bodies are never logged or returned.

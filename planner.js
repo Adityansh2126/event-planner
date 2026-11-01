@@ -1,4 +1,5 @@
 'use strict';
+const { limits } = require('./config');
 const SPLITS = {
   wedding: { 'Venue': .25, 'Food & catering': .30, 'Photo & video': .10, 'Decor & flowers': .10, 'Music & entertainment': .07, 'Attire & beauty': .08, 'Contingency': .10 },
   birthday: { 'Venue': .20, 'Food & cake': .35, 'Decor': .12, 'Entertainment': .15, 'Invites & favors': .08, 'Contingency': .10 },
@@ -6,18 +7,26 @@ const SPLITS = {
 };
 const TYPES = Object.keys(SPLITS);
 
-function validate(b = {}) {
+const DAY = 864e5;
+const plainText = (s, max) => String(s ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max);
+
+/** Validate and normalise the request body. Returns { errors, value }. */
+function validate(input) {
+  const b = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
   const errors = {};
   const type = String(b.type || '').toLowerCase();
   if (!TYPES.includes(type)) errors.type = 'Choose an event type.';
   const guests = Number(b.guests);
-  if (!Number.isInteger(guests) || guests < 1 || guests > 5000) errors.guests = 'Enter a guest count from 1 to 5000.';
+  if (!Number.isInteger(guests) || guests < 1 || guests > limits.maxGuests) errors.guests = `Enter a guest count from 1 to ${limits.maxGuests}.`;
   const budget = Number(b.budget);
-  if (!Number.isFinite(budget) || budget < 1 || budget > 1e9) errors.budget = 'Enter a budget greater than 0.';
+  if (!Number.isFinite(budget) || budget < 1 || budget > limits.maxBudget) errors.budget = 'Enter a budget greater than 0.';
   const date = String(b.date || '');
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) errors.date = 'Pick the event date.';
-  const city = String(b.city || '').trim().slice(0, 80);
-  const vibe = String(b.vibe || '').trim().slice(0, 200);
+  const when = Date.parse(date);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(when)) errors.date = 'Pick the event date.';
+  else if (when < Date.now() - 2 * DAY) errors.date = 'The event date cannot be in the past.';
+  else if (when > Date.now() + limits.maxHorizonDays * DAY) errors.date = 'Pick a date within the next 3 years.';
+  const city = plainText(b.city, limits.maxCity);
+  const vibe = plainText(b.vibe, limits.maxVibe);
   return { errors, value: { type, guests, budget, date, city, vibe } };
 }
 

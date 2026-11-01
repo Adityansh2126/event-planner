@@ -30,12 +30,15 @@ function render(d) {
   t.append(ol);
 
   const v = section('Vendor checklist'), ul = el('ul', null, 'chk');
+  const prog = el('p', `0 of ${d.vendors.length} vendors booked`, 'note');
+  prog.setAttribute('aria-live', 'polite');
+  const update = () => { prog.textContent = `${ul.querySelectorAll('input:checked').length} of ${d.vendors.length} vendors booked`; };
   d.vendors.forEach((x, i) => {
     const li = el('li'), lab = el('label'), cb = document.createElement('input');
-    cb.type = 'checkbox'; cb.id = 'v' + i; lab.htmlFor = cb.id;
+    cb.type = 'checkbox'; cb.id = 'v' + i; cb.addEventListener('change', update); lab.htmlFor = cb.id;
     lab.append(cb, el('span', x.category)); li.append(lab, el('small', x.tip)); ul.append(li);
   });
-  v.append(ul);
+  v.append(prog, ul);
 
   const i = section('Ideas for you'), il = el('ul', null, 'plain');
   d.ideas.forEach(x => il.append(el('li', x))); i.append(il);

@@ -16,7 +16,7 @@ class TtlCache {
 }
 
 /** Per-IP sliding-window rate limiter; stale entries are swept so memory stays bounded. */
-function createLimiter(max, windowMs) {
+function createLimiter(max, windowMs, maxClients = 10000) {
   const hits = new Map();
   setInterval(() => {
     const cutoff = Date.now() - windowMs;
@@ -27,6 +27,7 @@ function createLimiter(max, windowMs) {
     const recent = (hits.get(req.ip) || []).filter(t => now - t < windowMs);
     if (recent.length >= max) return res.status(429).json({ error: 'Too many requests. Try again in a minute.' });
     recent.push(now);
+    if (!hits.has(req.ip) && hits.size >= maxClients) hits.delete(hits.keys().next().value); // bound memory
     hits.set(req.ip, recent);
     next();
   };
