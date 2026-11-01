@@ -17,3 +17,12 @@ Without a key the app serves a template plan so it never breaks.
 - **Reliability:** budget math is computed in code (always sums to total); the model only supplies timeline, vendors and ideas; template fallback on any AI error.
 - **Accessibility:** labelled fields, live region, keyboard focus styles, dark mode, print stylesheet.
 - **Deploy:** `gcloud run deploy --source . --set-env-vars GEMINI_API_KEY=...`
+
+## Structure
+- `server.js`: Express app factory (`createApp`), security headers, gzip, routes
+- `gemini.js`: Gemini client with timeout, one retry on 429/500/503, and a fallback model
+- `planner.js`: validation, budget math, timeline dating, output sanitising, template fallback
+- `utils.js`: TTL cache and per-IP rate limiter
+- `test/`: unit and API tests (`npm test`), with the AI call stubbed so tests run offline
+
+Identical requests are cached for 10 minutes; static files are cached and responses are gzip-compressed.
