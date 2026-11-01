@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gather — AI event planner</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#plan">Skip to plan</a>
+<header>
+  <h1>Gather</h1>
+  <p>Tell us about your wedding, birthday or community event. Get a budget, timeline, vendor checklist and ideas in seconds.</p>
+</header>
+<main>
+  <form id="f" novalidate>
+    <div class="field"><label for="type">Event type</label>
+      <select id="type" name="type" required>
+        <option value="wedding">Wedding</option><option value="birthday">Birthday</option><option value="community">Community event</option>
+      </select></div>
+    <div class="field"><label for="guests">Guests</label><input id="guests" name="guests" type="number" min="1" max="5000" value="80" required></div>
+    <div class="field"><label for="budget">Total budget</label><input id="budget" name="budget" type="number" min="1" value="200000" required></div>
+    <div class="field"><label for="date">Event date</label><input id="date" name="date" type="date" required></div>
+    <div class="field"><label for="city">City</label><input id="city" name="city" maxlength="80" autocomplete="address-level2"></div>
+    <div class="field wide"><label for="vibe">Style notes</label><input id="vibe" name="vibe" maxlength="200" placeholder="Garden party, vegetarian menu, live acoustic music"></div>
+    <p id="err" class="error" role="alert"></p>
+    <button id="go" type="submit">Create my plan</button>
+  </form>
+  <section id="plan" aria-live="polite" tabindex="-1"></section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
